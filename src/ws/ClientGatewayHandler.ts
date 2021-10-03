@@ -76,22 +76,22 @@ export class ClientGatewayHandler extends GatewayHandler {
                 }
 
                 case GatewayEvent.CHANNEL_JOIN_SUCCESS: {
-                    this.events.channelJoin.ingest(data as WSChannelJoin);
+                    this.events.channelJoin.ingest(incomingData as WSChannelJoin);
                     break;
                 }
 
                 case GatewayEvent.MESSAGE_NEW: {
-                    this.events.messageNew.ingest(data as WSMessageNew);
+                    this.events.messageNew.ingest(incomingData as WSMessageNew);
                     break;
                 }
 
                 case GatewayEvent.GROUP_GET_SUCCESS: {
-                    this.events.groupGet.ingest(data as WSGroupGet);
+                    this.events.groupGet.ingest(incomingData as WSGroupGet);
                     break;
                 }
 
                 case GatewayEvent.JOINED_NEW_GROUP: {
-                    this.events.groupNew.ingest(data as WSGroupNew);
+                    this.events.groupNew.ingest(incomingData as WSGroupNew);
                     break;
                 }
             }

@@ -1,4 +1,4 @@
-import fetch, { Response } from 'node-fetch';
+import fetch, { Response, HeadersInit } from 'node-fetch';
 
 import { APIResponse, API_ERROR_CODES, PlugifyAPIError } from './APIResponse';
 

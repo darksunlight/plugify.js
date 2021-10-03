@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "declaration": true,
+        "declarationDir": "./dist/types",
         "moduleResolution": "node",
         "module": "CommonJS",
         "target": "ES6",
@@ -14,12 +15,13 @@
             "node"
         ],
         "outDir": "./dist",
-        "declarationDir": "./types",
+        "allowSyntheticDefaultImports": true,
         "esModuleInterop": true
     },
     "include": [ "./src/**/*.ts" ],
     "exclude": [
         "*.test.ts",
-        "dist/**"
+        "dist/**",
+        "examples/**"
     ]
 }
