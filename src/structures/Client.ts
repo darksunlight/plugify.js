@@ -16,8 +16,9 @@ export class Client extends EventEmitter implements clientEvents {
 
     public user: any | null = null;
     public gateway: ClientGatewayHandler | null = null;
-    public _token: string;
+    private _token: string;
     public joinedChannel: TextChannel;
+    public loginOptions: LoginOptions | null = null;
     
     public readonly channels = new ChannelManager(this);
     public readonly groups = new GroupManager(this);
@@ -28,9 +29,15 @@ export class Client extends EventEmitter implements clientEvents {
     }
 
     public async login(options: string | LoginOptions): Promise<this> {
-        this._token = typeof options === 'string' ? options : options.token;
+        if (typeof options === 'string') {
+            this._token = options;
+        } else {
+            this.loginOptions = options;
+            this._token = options.token;
+        }
         
         this.gateway = new ClientGatewayHandler(this).init();
+        this.rest.setToken(this._token);
         return this;
     }
 
@@ -42,6 +49,10 @@ export class Client extends EventEmitter implements clientEvents {
             this.gateway?.destroy(false);
         }
         this.emit('disconnected');
+    }
+
+    public get token(): string {
+        return this._token;
     }
 }
 

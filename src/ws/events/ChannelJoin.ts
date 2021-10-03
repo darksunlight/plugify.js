@@ -19,6 +19,7 @@ export default class ChannelJoinEvent extends Event {
                 data.data.channel,
                 group,
             )!;
+            this.client.joinedChannel = newChannel;
             this.client.channels!.cache.set(newChannel.id, newChannel);
             this.client.emit(events.CHANNEL_JOIN, newChannel);
             return [true];

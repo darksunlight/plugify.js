@@ -1,4 +1,4 @@
-import { WSGroupGet } from '../../api-typings';
+import { GatewayEvent, WSGroupGet } from '../../api-typings';
 
 import type { Client } from '../../structures/Client';
 import { events } from '../../typings';
@@ -16,6 +16,9 @@ export default class GroupGetEvent extends Event {
                 this.client.groups!.cache.set(group.id, group);
             });
             this.client.emit(events.READY);
+            if (this.client.loginOptions?.joinChannel) {
+                this.client.gateway.ws.send(JSON.stringify({ event: GatewayEvent.CHANNEL_JOIN, data: { id: this.client.loginOptions.joinChannel } }));
+            }
             return [true];
         }
         return [false, 'passthrough'];

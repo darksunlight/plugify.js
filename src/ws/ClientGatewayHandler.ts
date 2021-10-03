@@ -62,7 +62,7 @@ export class ClientGatewayHandler extends GatewayHandler {
                 }
 
                 case GatewayEvent.WELCOME: {
-                    this.ws.send(JSON.stringify({ event: 1, data: { token: this.client._token } }));
+                    this.ws.send(JSON.stringify({ event: 1, data: { token: this.client.token } }));
                     break;
                 }
 

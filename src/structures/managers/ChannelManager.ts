@@ -25,7 +25,7 @@ export class ChannelManager extends BaseManager<APITextChannel, TextChannel | Pa
         content: string
     ): void {
         const channelID = ChannelManager.resolve(channel);
-        if (this.client.options.allRooms && this.client.joinedChannel.id !== channelID) {
+        if (this.client.options?.allRooms && this.client.joinedChannel.id !== channelID) {
             this.client.gateway.ws.send(JSON.stringify({ event: GatewayEvent.CHANNEL_JOIN, data: { id: channelID } }));
         }
         return this.client.gateway.ws.send(JSON.stringify({ event: GatewayEvent.MESSAGE_SEND, data: { content: content } }));
