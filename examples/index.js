@@ -34,6 +34,9 @@ client.on('messageNew', (/** @type Message */message) => {
             const data = x.data;
             message.channel.send(data.members.map(x => x.username).join(', '));
         });
+    } else if (message.raw.content.startsWith('.switchto ')) {
+        const channelId = message.raw.content.split(' ')[1];
+        client.gateway.ws.send(JSON.stringify({ event: 4, data: { id: channelId } }));
     }
     console.log(`@${message.authorName}: ${message.raw.content}`);
 });
