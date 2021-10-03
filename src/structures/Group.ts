@@ -4,32 +4,25 @@ import type { APIGroup, APIInvite } from '../api-typings';
 import { Base } from './Base';
 import { TextChannel } from './Channel';
 import type { Client } from './Client';
-import { TeamMemberManager } from './managers/TeamMemberManager';
+import { MessageAuthorManager } from './managers/MessageAuthorManager';
+import { GroupChannelManager } from './managers/GroupChannelManager';
 
-/**
- * A team is the basis of Guilded, it is where TeamChannels, TeamMembers, and TeamRoles reside.
- */
 export class Group extends Base<APIGroup> {
 
-    /**
-     * The date in which this team was created
-     * @readonly
-     */
     public readonly createdAt: Date;
 
-    public members: TeamMemberManager;
+    public members: MessageAuthorManager;
+    public channels: GroupChannelManager;
 
     public name!: string;
 
-    /**
-     * Icon of this team
-     */
-    public profilePicture!: string;
+    public avatarURL!: string;
 
     public constructor(client: Client, data: APIGroup) {
         super(client, data);
         this.createdAt = new Date(data.createdAt);
-        this.members = new TeamMemberManager(this.client, this);
+        this.members = new MessageAuthorManager(this.client, this);
+        this.channels = new GroupChannelManager(this.client, this);
 
         this.patch(data);
     }
@@ -47,7 +40,7 @@ export class Group extends Base<APIGroup> {
     }
 
     public get memberCount(): number {
-        return this.members.length;
+        return this.members.cache.size;
     }
 
     /**

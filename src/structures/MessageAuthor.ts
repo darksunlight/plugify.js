@@ -3,7 +3,7 @@ import type { APIMessageAuthor } from '../api-typings';
 import { Base } from './Base';
 import type { Client } from './Client';
 
-interface PJSMessageAuthor extends APIMessageAuthor {
+export interface PJSMessageAuthor extends APIMessageAuthor {
     id: string;
 }
 

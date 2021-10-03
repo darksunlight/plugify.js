@@ -1,5 +1,4 @@
 import {
-    APIMessage,
     APITextChannel,
     GatewayEvent,
 } from '../../api-typings';
@@ -31,6 +30,4 @@ export class ChannelManager extends BaseManager<APITextChannel, TextChannel | Pa
         }
         return this.client.gateway.ws.send(JSON.stringify({ event: GatewayEvent.MESSAGE_SEND, data: { content: content } }));
     }
-
-    public static join(channelID: string)
 }

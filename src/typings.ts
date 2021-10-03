@@ -23,6 +23,7 @@ export enum websocket_opcodes {
 export enum events {
     GROUP_NEW = 'groupNew',
     MESSAGE_NEW = 'messageNew',
+    CHANNEL_JOIN = 'channelJoin',
     READY = 'ready',
 }
 

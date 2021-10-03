@@ -1,9 +1,10 @@
 import type { APIMessage } from '../api-typings';
 import { Base } from './Base';
-import { TextChannel } from './Channel';
+import { PartialChannel, TextChannel } from './Channel';
 import type { Client } from './Client';
 import { MessageAuthor } from './MessageAuthor';
 import { User } from './User';
+import { retrieveChannelFromStructureCache } from '../util';
 
 export class Message extends Base<APIMessage> {
     public readonly channelID!: string;
@@ -31,7 +32,7 @@ export class Message extends Base<APIMessage> {
     /**
      * Retrieve the channel object that this message belongs to.
      */
-    public get channel(): TextChannel | null {
+    public get channel(): PartialChannel | null {
         return retrieveChannelFromStructureCache({
             _channel: this._channel,
             channelID: this.channelID,
@@ -40,6 +41,6 @@ export class Message extends Base<APIMessage> {
     }
 
     public get author(): User | null {
-        return this.client.users.cache.get(this.authorID) ?? null;
+        return this.client.users.cache.get(this.authorName) ?? null;
     }
 }

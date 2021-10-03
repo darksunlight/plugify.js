@@ -6,6 +6,7 @@ import { GroupManager } from './managers/GroupManager';
 import { User } from './User';
 import { TextChannel } from './Channel';
 import { ClientOptions, LoginOptions } from '../typings';
+import { UserManager } from './managers';
 
 export class Client extends EventEmitter implements clientEvents {
 
@@ -20,6 +21,7 @@ export class Client extends EventEmitter implements clientEvents {
     
     public readonly channels = new ChannelManager(this);
     public readonly groups = new GroupManager(this);
+    public readonly users = new UserManager(this);
 
     public constructor(public readonly options?: Partial<ClientOptions>) {
         super();
@@ -36,10 +38,8 @@ export class Client extends EventEmitter implements clientEvents {
         if (intentionToReconnect) {
             return this.gateway?.destroy(true);
         } else {
-            this.rest.post('/logout', {}).finally(() => {
-                this.rest.destroy();
-                this.gateway?.destroy(false);
-            });
+            this.rest.destroy();
+            this.gateway?.destroy(false);
         }
         this.emit('disconnected');
     }

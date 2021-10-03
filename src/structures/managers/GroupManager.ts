@@ -1,74 +1,18 @@
-import type { APIGroup } from '../../api-typings';
+import type { APIGroup, APIInvite } from '../../api-typings';
 
 import { TextChannel } from '../Channel';
 import type { Client } from '../Client';
 import { Group } from '../Group';
-import { Member } from '../Member';
-import { Role } from '../Role';
-import { Team } from '../Team';
+import { MessageAuthor } from '../MessageAuthor';
 import { BaseManager } from './BaseManager';
-import { TeamGroupManager } from './TeamGroupManager';
-import { TeamMemberManager } from './TeamMemberManager';
 
-export class GroupManager extends BaseManager<APITeam | APIPartialTeam, Team> {
+export class GroupManager extends BaseManager<APIGroup, Group> {
     public constructor(client: Client) {
-        super(client, Team, { maxSize: client.options?.cache?.cacheMaxSize?.teamsCache });
+        super(client, Group, { maxSize: client.options?.cache?.cacheMaxSize?.groupsCache });
     }
 
-    public static resolve(team: string | Team): string {
-        return team instanceof Team ? team.id : team;
-    }
-
-    /**
-     * Add a role to a TeamMember
-     * @param team The ID or team object of the Team the target member is in.
-     * @param member The ID or member object of the Member that will have the role added to them.
-     * @param role The ID or role object of the Role to add to the member.
-     */
-    public addRoleToMember(team: string | Team, member: string | Member, role: string | Role): Promise<void> {
-        const roleID = role instanceof Role ? role.id : role;
-        const memberID = TeamMemberManager.resolve(member);
-        const teamID = TeamManager.resolve(team);
-        return this.client.rest.put(`/teams/${teamID}/roles/${roleID}/users/${memberID}`).then(() => void 0);
-    }
-
-    /**
-     * Remove a role from a TeamMember
-     * @param team The ID or team object of the Team the target member is in.
-     * @param member The ID or member object of the Member that will have the role removed from them.
-     * @param role The ID or role object of the Role to remove from the member.
-     */
-    public removeRoleFromMember(team: string | Team, member: string | Member, role: string | Role): Promise<void> {
-        const roleID = role instanceof Role ? role.id : role;
-        const memberID = TeamMemberManager.resolve(member);
-        const teamID = TeamManager.resolve(team);
-        return this.client.rest.delete(`/teams/${teamID}/roles/${roleID}/users/${memberID}`).then(() => void 0);
-    }
-
-    /**
-     * Kick a TeamMember
-     * @param team The ID or team object of the Team the target member is in.
-     * @param member The ID or member object of the Member that will be kicked
-     */
-    public kickMember(team: string | Team, member: string | Member): Promise<void> {
-        const memberID = TeamMemberManager.resolve(member);
-        const teamID = TeamManager.resolve(team);
-        return this.client.rest.delete(`/teams/${teamID}/members/${memberID}`).then(() => void 0);
-    }
-
-    /**
-     * Set a TeamMember's name
-     * @param team The ID or team object of the Team the target member is in.
-     * @param member The ID or member object of the Member that will be renamed.
-     * @param newNickname The new nickname to give to the Member.
-     */
-    public setMemberNickname(team: string | Team, member: string | Member, newNickname: string): Promise<void> {
-        if (typeof newNickname !== 'string') throw new TypeError('Nickname must be a string!');
-        const memberID = TeamMemberManager.resolve(member);
-        const teamID = TeamManager.resolve(team);
-        return this.client.rest
-            .put(`/teams/${teamID}/members/${memberID}/nickname`, { nickname: newNickname })
-            .then(() => void 0);
+    public static resolve(group: string | Group): string {
+        return group instanceof Group ? group.id : group;
     }
 
     /**
@@ -76,48 +20,25 @@ export class GroupManager extends BaseManager<APITeam | APIPartialTeam, Team> {
      * @param team The ID or team object of the Team.
      * @returns The ID of the created Invite
      */
-    public createInvite(team: string | Team): Promise<APIPostCreateInviteResult> {
-        const teamID = TeamManager.resolve(team);
-        return this.client.rest.post(`/teams/${teamID}/invites`, { teamId: teamID }).then(x => x.invite);
+    public createInvite(group: string | Group, options?: { uses?: number | null, expires?: Date | null }): Promise<Partial<APIInvite>> {
+        const groupID = GroupManager.resolve(group);
+        return this.client.rest.post('/invites/create', {
+            id: groupID,
+            uses: options?.uses ?? null,
+            expires: options?.expires ?? null,
+        }).then(x => x.data);
     }
-
-    public deleteInvite(team: string | Team, inviteID: string): Promise<string> {
-        if (typeof inviteID !== 'string') throw new TypeError('InviteID must be a string!');
-        const teamID = TeamManager.resolve(team);
-        return this.client.rest.delete(`/teams/${teamID}/invites/${inviteID}`).then(x => x.id);
-    }
-
-    /**
-     * Creates a Teamchannel
-     * @param team
-     * @param group
-     * @param name
-     * @param contentType
-     * @param channelCategoryId
-     * @param isPublic
-     * @returns
-     */
 
     public createChannel(
-        team: string | Team,
         group: string | Group,
         name: string,
-        contentType: CHANNEL_CONTENT_TYPES,
-        channelCategoryId: number | null = null,
-        isPublic = false,
-    ): Promise<TeamChannel> {
-        if (typeof name !== 'string') {
-            throw new TypeError('Name must be a string!');
-        }
-        const teamID = TeamManager.resolve(team);
-        const groupID = TeamGroupManager.resolve(group);
-        return this.client.rest.post(`/teams/${teamID}/groups/${groupID}`, {
-            channelCategoryId,
-            contentType,
-            isPublic,
+    ): Promise<TextChannel> {
+        const groupID = GroupManager.resolve(group);
+        return this.client.rest.post<TextChannel>('/channels/create', {
             name,
-        });
-        // .then(x => new TeamChannel(this.client, x, null, null));
+            groupID,
+            type: 'text',
+        }).then(x => x.data);
     }
 
     /**
@@ -125,20 +46,20 @@ export class GroupManager extends BaseManager<APITeam | APIPartialTeam, Team> {
      * @param id the ID of the team to fetch.
      * @param cache Whether to cache the fetched Team or not.
      */
-    public fetch(id: string, cache = true): Promise<Team> {
-        return this.client.rest.get<APIGetTeam>(`/teams/${id}`).then(data => {
-            const cachedTeam = this.client.teams.cache.get(id);
+    public fetch(id: string, cache = true): Promise<Group> {
+        return this.client.rest.get<APIGroup>(`/groups/info/${id}`).then(data => {
+            const cachedGroup = this.client.groups.cache.get(id);
 
-            if (cache && cachedTeam) {
-                cachedTeam.patch(data.team);
-                for (const member of data.team.members) {
-                    const existingMember = cachedTeam.members.cache.get(member.id);
+            if (cache && cachedGroup) {
+                cachedGroup.patch(data.data);
+                for (const member of data.data.members) {
+                    const existingMember = cachedGroup.members.cache.get(member.name);
                     if (existingMember) existingMember.patch(member);
-                    else cachedTeam.members.cache.set(member.id, new Member(this.client, member, cachedTeam));
+                    else cachedGroup.members.cache.set(member.name, new MessageAuthor(this.client, Object.assign(member, { id: member.name })));
                 }
             }
 
-            return cachedTeam ?? new Team(this.client, data.team);
+            return cachedGroup ?? new Group(this.client, data.data);
         });
     }
 }

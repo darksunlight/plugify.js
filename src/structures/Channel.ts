@@ -1,7 +1,8 @@
-import type {
+import {
     APITextChannel,
     APIUser,
     CHANNEL_TYPES,
+    GatewayEvent,
 } from '../api-typings';
 
 import type { BaseData } from '../typings';
@@ -10,9 +11,8 @@ import { Client } from './Client';
 import type { Group } from './Group';
 import { MessageManager } from './managers/MessageManager';
 import type { Message } from './Message';
-import { Role, RolePermissionOverwrite } from './Role';
-import type { Team } from './Team';
 import type { User } from './User';
+import { retrieveGroupFromStructureCache } from '../util';
 
 /**
  * A partial channel, not enough data received however to construct a full channel type object.
@@ -43,7 +43,7 @@ export class PartialChannel extends Base<BaseData> {
         patch = true,
     ) {
         super(client, data as { id: string });
-        this.groupID = _team?.id ?? ('teamId' in data && data.teamId ? data.teamId : null) ?? null;
+        this.groupID = _group?.id ?? ('groupId' in data && data.groupId ? data.groupId : null) ?? null;
         this.messages = new MessageManager(this.client, this);
         this.type = data.type!;
 
@@ -53,11 +53,11 @@ export class PartialChannel extends Base<BaseData> {
     /**
      * Getter for retrieving the team this channel belongs to if it is cached.
      */
-    public get team(): Team | null {
-        return retrieveTeamFromStructureCache({
-            _team: this._team,
+    public get group(): Group | null {
+        return retrieveGroupFromStructureCache({
+            _group: this._group,
             client: this.client,
-            teamID: this.teamID,
+            groupID: this.groupID,
         });
     }
 
@@ -65,16 +65,15 @@ export class PartialChannel extends Base<BaseData> {
         return this;
     }
 
-    /**
-     * Send a message to this channel.
-     * @param content Either a string content or RichEmbed to send to this channel.
-     * @param embed A RichEmbed to send to this channel.
-     */
-    public send(content: string): Promise<Message | string> {
+    public send(content: string): void {
         if (this.type !== 'text') {
             throw new TypeError('Cannot send messages to non-text channels.');
         }
         return this.client.channels.sendMessage(this, content);
+    }
+
+    public join(): void {
+        this.client.gateway.ws.send(JSON.stringify({ event: GatewayEvent.CHANNEL_JOIN, id: this.id }));
     }
 }
 
@@ -101,19 +100,12 @@ export class TextChannel extends PartialChannel {
      */
     public readonly messages: MessageManager | null;
 
-    public constructor(client: Client, data: APITextChannel, private _group: Group | null) {
-        super(client, data, false);
+    public constructor(client: Client, data: APITextChannel, _group: Group | null) {
+        super(client, data, _group);
         this.messages = new MessageManager(this.client, this);
         this.description = null;
 
         this.patch(data);
-    }
-
-    /**
-     * The group object this channel belongs to, if cached.
-     */
-    public get group(): Group | null {
-        return this._group ?? this.client.groups.cache.get(this.groupID.toString()) ?? null;
     }
 
     public patch(data: APITextChannel | Partial<APITextChannel>): this {

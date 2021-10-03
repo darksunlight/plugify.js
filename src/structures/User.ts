@@ -3,7 +3,7 @@ import type { APIUser } from '../api-typings';
 import { Base } from './Base';
 import type { Client } from './Client';
 
-interface PJSUser extends APIUser {
+export interface PJSUser extends APIUser {
     id: string;
 }
 

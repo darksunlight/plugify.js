@@ -1,4 +1,6 @@
 export * from './Event';
+export * from './ChannelJoin';
+export * from './GroupGet';
 export * from './GroupNew';
 export * from './MessageNew';
 

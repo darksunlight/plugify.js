@@ -5,8 +5,6 @@ import { APIResponse, API_ERROR_CODES, PlugifyAPIError } from './APIResponse';
 export class RestManager {
     public apiURL: string;
     public token?: string;
-    public cookieJar?: string;
-    public guildedMID?: string;
 
     public constructor(public config?: RestManagerOptions) {
         this.apiURL = `https://${config?.apiURL ?? 'api.plugify.cf/v2'}`;
