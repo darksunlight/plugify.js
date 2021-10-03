@@ -8,12 +8,12 @@ client.on('ready', () => {
 
 client.on('channelJoin', (channel) => {
     console.log(`Joined channel #${channel.name}`);
-})
+});
 
 client.on('messageNew', (/** @type Message */message) => {
-    if (message.raw.content === '.ping') return message.channel.send(`Current gateway ping: ${client.gateway.ping}ms`);
-    else if (message.raw.content.startsWith('.ui ')) {
-        const username = message.raw.content.split(' ')[1];
+    if (message.content === '.ping') return message.channel.send(`Current gateway ping: ${client.gateway.ping}ms`);
+    else if (message.content.startsWith('.ui ')) {
+        const username = message.content.split(' ')[1];
         return client.rest.get(`/users/info/${username}`).then(user => {
             const data = user.data;
             const flags = {
@@ -29,19 +29,19 @@ client.on('messageNew', (/** @type Message */message) => {
             }
             message.channel.send(`|User Info|\n|-|\n|${username}|\n|${attributes.join(', ')}|\n`);
         })
-    } else if (message.raw.content === '.members') {
+    } else if (message.content === '.members') {
         return client.rest.get(`/groups/info/${message.channel.group.id}`).then(x => {
             const data = x.data;
             message.channel.send(data.members.map(x => x.username).join(', '));
         });
-    } else if (message.raw.content.startsWith('.switchto ')) {
-        const channelId = message.raw.content.split(' ')[1];
+    } else if (message.content.startsWith('.switchto ')) {
+        const channelId = message.content.split(' ')[1];
         client.gateway.ws.send(JSON.stringify({ event: 4, data: { id: channelId } }));
     }
-    console.log(`@${message.authorName}: ${message.raw.content}`);
+    console.log(`@${message.authorName}: ${message.content}`);
 });
 
 client.login({
     token: process.env.TOKEN,
     joinChannel: '74f0fadb-9284-4a4f-bc53-f92a4e90e383',
-})
+});

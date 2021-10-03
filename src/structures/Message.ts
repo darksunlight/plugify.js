@@ -26,6 +26,7 @@ export class Message extends Base<APIMessage> {
      * @internal
      */
     public patch(data: APIMessage | Partial<APIMessage>): this {
+        this.content = data.content;
         return this;
     }
 
