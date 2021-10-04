@@ -2,6 +2,7 @@ import type { APIMessageAuthor } from '../api-typings';
 
 import { Base } from './Base';
 import type { Client } from './Client';
+import type { User } from './User';
 
 export interface PJSMessageAuthor extends APIMessageAuthor {
     id: string;
@@ -27,5 +28,9 @@ export class MessageAuthor extends Base<PJSMessageAuthor> {
         if ('avatarURL' in data && data.avatarURL !== undefined) this.avatarURL = data.avatarURL;
 
         return this;
+    }
+
+    public get user(): User | null {
+        return this.client.users.cache.get(this.name) ?? null;
     }
 }

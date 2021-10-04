@@ -1,4 +1,4 @@
-const { Client, Message } = require('..');
+const { Client, Message } = require('../..');
 
 const client = new Client();
 

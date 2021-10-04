@@ -1,12 +1,14 @@
 import type { APIMessage } from '../api-typings';
 import { Base } from './Base';
 import { PartialChannel, TextChannel } from './Channel';
+import { Group } from './Group';
 import type { Client } from './Client';
 import { MessageAuthor } from './MessageAuthor';
 import { User } from './User';
 import { retrieveChannelFromStructureCache } from '../util';
 
 export class Message extends Base<APIMessage> {
+    public readonly id!: string;
     public readonly channelID!: string;
     public readonly authorName: string;
     public content!: string;
@@ -17,6 +19,7 @@ export class Message extends Base<APIMessage> {
         private _channel: TextChannel | null,
     ) {
         super(client, data);
+        this.id = data.id;
         this.authorName = data.author.name;
         this.channelID = client.joinedChannel?.id;
         this.patch(data);
@@ -41,7 +44,19 @@ export class Message extends Base<APIMessage> {
         });
     }
 
-    public get author(): User | null {
+    public get group(): Group | null {
+        return this.channel?.group ?? null;
+    }
+
+    public get groupID(): string | null {
+        return this.channel?.groupID ?? null
+    }
+
+    public get author(): MessageAuthor | null {
+        return this.group?.members.cache.get(this.authorName) ?? null;
+    }
+
+    public get user(): User | null {
         return this.client.users.cache.get(this.authorName) ?? null;
     }
 }

@@ -1,14 +1,19 @@
 import { EventEmitter } from 'events';
 import { RestManager } from '../rest';
 import { ClientGatewayHandler } from '../ws/ClientGatewayHandler';
+
 import { ChannelManager } from './managers/ChannelManager';
 import { GroupManager } from './managers/GroupManager';
-import { User } from './User';
-import { TextChannel } from './Channel';
-import { ClientOptions, LoginOptions } from '../typings';
-import { UserManager } from './managers';
+import { UserManager } from './managers/UserManager';
 
-export class Client extends EventEmitter implements clientEvents {
+import { PartialChannel, TextChannel } from './Channel';
+import { Group } from './Group';
+import { Message } from './Message';
+import { User } from './User';
+
+import { ClientOptions, LoginOptions } from '../typings';
+
+export class Client extends EventEmitter implements ClientEvents {
 
     public readonly rest: RestManager = new RestManager({
         apiURL: this.options?.rest?.apiURL ?? 'api.plugify.cf/v2',
@@ -58,10 +63,11 @@ export class Client extends EventEmitter implements clientEvents {
 
 export class ClientUser extends User {} // user can't change any settings as of 2021-10-02, making the user of the client identical in the extent of functionalities as other users
 
-export interface clientEvents {
+export interface ClientEvents {
     on(event: 'disconnected', listener: () => unknown): this;
-    on(event: 'groupNew', listener: (group: any) => unknown): this;
-    on(event: 'messageNew', listener: (message: any) => unknown): this;
+    on(event: 'groupNew', listener: (group: Group) => unknown): this;
+    on(event: 'channelJoin', listener: (channel: PartialChannel | TextChannel) => unknown): this;
+    on(event: 'messageNew', listener: (message: Message) => unknown): this;
     on(event: 'raw', listener: (event_name: string, event_data: Record<string, unknown>) => unknown): this;
     on(event: 'ready', listener: () => unknown): this;
     on(event: 'reconnecting', listener: () => unknown): this;
