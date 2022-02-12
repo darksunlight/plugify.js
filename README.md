@@ -1,2 +1,2 @@
-# plugify-js
-Heavily influenced by [guilded.gg](https://github.com/zaida04/guilded.js).
+# plugify.js
+Heavily influenced by [guilded.js](https://github.com/zaida04/guilded.js).
