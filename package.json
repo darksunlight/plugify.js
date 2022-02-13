@@ -1,7 +1,7 @@
 {
-  "name": "plugify-js",
+  "name": "plugify.js",
   "version": "0.0.1",
-  "description": "A WIP JavaScript Library for Plugify",
+  "description": "A WIP JavaScript Library for the Plugify API",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
